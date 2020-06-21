@@ -38,6 +38,10 @@ module.exports = {
         link: '/guide/',
       },
       {
+        text: 'API',
+        link: '/api/'
+      },
+      {
         text: 'Config',
         link: '/config/'
       },
@@ -57,6 +61,16 @@ module.exports = {
           ]
         }
       ],
+      '/api/': [
+        {
+          title: 'API References',
+          collapsable: false, 
+          children: [
+            '',
+            'function',
+          ]
+        }
+      ]
     }
   },
 
