@@ -68,6 +68,8 @@ module.exports = {
           children: [
             '',
             'function',
+            'interface',
+            'class',
           ]
         }
       ]

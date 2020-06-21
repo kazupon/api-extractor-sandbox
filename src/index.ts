@@ -43,7 +43,6 @@ export interface IWidget {
  */
 export class Widget implements IWidget {
   constructor () {
-
   }
 
   /**
