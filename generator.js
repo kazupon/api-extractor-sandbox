@@ -1,5 +1,6 @@
 const fs = require('fs').promises
 const path = require('path')
+// TODO: use @microsoft/api-extractor-model
 const apiModel = require('./temp/api-extractor-sandbox.api.json')
 console.log('apiModel', apiModel.members)
 
