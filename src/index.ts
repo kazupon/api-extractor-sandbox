@@ -1,27 +1,49 @@
+
 /**
- * add function
+ * The version
+ */
+export const VERSION = '1.0.0'
+
+/**
+ * Error Code
+ */
+export enum ErrorCodes {
+  /**
+   * Success
+   */
+  Succcess,
+  /**
+   * Invalid format
+   */
+  InvalidFormat
+}
+
+/**
+ * add function : `x`
  * 
- * @param a target 1
+ * @remarks
+ * This is add function remarks
+ * 
+ * @param a target `1`
  * @param b target 2
+ * @returns result as `a` + `b`
  * 
- * {@vueComponent add}
+ * @throws `SyntaxError`
+ * this is syntax error
+ * 
+ * @throws `Error`
+ * this is general error
+ * 
+ * @example
+ * example of `add` function:
+ * ```javascript
+ * console.log(add(1, 1))
+ * ```
  * 
  * @public
  */
 export function add(a: number, b: number): number {
   return a + b
-}
-
-/**
- * sub function
- * 
- * @param a target 1
- * @param b target 2
- * 
- * @public
- */
-export function sub(a: number, b: number): number {
-  return a - b
 }
 
 /**

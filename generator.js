@@ -40,82 +40,239 @@ function createMarkdownGenerator(type) {
     _newline(_context.indentLevel)
   }
 
+  function pushline(content) {
+    push(content)
+    newline()
+  }
+
   return {
     context,
     push,
     indent,
     deindent,
-    newline
+    newline,
+    pushline
   }
 }
 
 
 function generateMarkdown(generators, models) {
   for (const model of models) {
-    console.log(model, model.excerptTokens)
-
     const kind = model.kind
     let generator = generators.get(kind)
     if (!generator) {
       generator = createMarkdownGenerator(kind)
-      generator.push(`# ${kind}`)
-      generator.newline()
+      generator.pushline(`# ${kind}`)
       generator.newline()
       generators.set(kind, generator)
     }
 
     switch (kind) {
       case 'Function':
-        generator.push(`## ${model.name}`)
-        generator.newline()
-        generator.newline()
-        const docs = model.tsdocComment
-        console.log('docs', docs.params)
-        if (docs.summarySection) {
-          for (const n of docs.summarySection.nodes) {
-            for (const p of n.nodes) {
-              if (p.kind === 'PlainText') {
-                generator.push(p.text)
-                generator.newline()
-                generator.newline()
-              }
-            }
-          }
-        }
-
-        if (model.excerptTokens) {
-          generator.push(`**Signature:**`)
-          generator.newline()
-          generator.push('```typescript')
-          generator.newline()
-          generator.push(model.excerptTokens.map(token => token.text).join(''))
-          generator.newline()
-          generator.push('```')
-          generator.newline()
-        }
-        break;
+        generateMarkdownFunction(generator, model)
+        break
+      case 'Enum':
+        generateMarkdownEnum(generator, model)
+        break
       case 'Interface':
         generateMarkdownInterface(generator, model)
-        break;
+        break
       case 'Class':
         generateMarkdownClass(generator, model)
-        break;
+        break
+      case 'TypeAlias':
+        generateMarkdownTypeAlias(generator, model)
+        break
+      case 'Variable':
+        generateMarkdownVariable(generator, model)
       default:
-        break;
+        break
     }
   }
 }
 
-function generateMarkdownInterface(generator, model) {
-  generator.push(`## ${model.name}`)
+function generateMarkdownFunction(generator, model) {
+  generator.pushline(`## ${model.name}`)
   generator.newline()
+  const docs = model.tsdocComment
+  // console.log('model ->', model)
+  // console.log('tsdocComment->', docs)
+  // console.log('params ->', docs.params)
+  // console.log('params ->', model.parameters)
+  // console.log('typeParams ->', docs.typeParams)
+  if (docs.summarySection) {
+    for (const n of docs.summarySection.nodes) {
+      let text = ''
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          text += p.text
+        } else if (p.kind === 'CodeSpan') {
+          text += `\`${p.code}\``
+        }
+      }
+      generator.pushline(text)
+      generator.newline()
+    }
+  }
+
+  if (model.excerptTokens) {
+    generator.pushline(`**Signature:**`)
+    generator.pushline('```typescript')
+    generator.pushline(model.excerptTokens.map(token => token.text).join(''))
+    generator.pushline('```')
+    generator.newline()
+  }
+
+  const getParamText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          ret += p.text
+        } else if (p.kind === 'CodeSpan') {
+          ret += `\`${p.code}\``
+        }
+      }
+    }
+    return ret
+  }
+
+  if (model.parameters) {
+    generator.pushline(`### Parameters`)
+    generator.newline()
+    generator.pushline(`| Parameter | Type | Description |`)
+    generator.pushline(`| --- | --- | --- |`)
+    for (const p of model.parameters) {
+      generator.pushline(`| ${p.name} | ${p.parameterTypeExcerpt.text.trim()} | ${getParamText(p.tsdocParamBlock.content)} `)
+    }
+    generator.newline()
+  }
+
+
+  const getReturnsText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          ret += p.text
+        } else if (p.kind === 'CodeSpan') {
+          ret += `\`${p.code}\``
+        }
+      }
+    }
+    return ret
+  }
+
+  if (docs.returnsBlock) {
+    generator.pushline(`### Returns`)
+    generator.newline()
+    generator.pushline(getReturnsText(docs.returnsBlock.content))
+    generator.newline()
+  }
+
+  const getThrowsTags = (customBlocks) => customBlocks.filter(x => x.blockTag.tagName === '@throws')
+  const getThrowsText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          ret += p.text
+        } else if (p.kind === 'CodeSpan') {
+          ret += `\`${p.code}\``
+        }
+      }
+    }
+    return ret
+  }
+
+  const throws = getThrowsTags(docs.customBlocks)
+  if (throws.length > 0) {
+    generator.pushline(`### Throws`)
+    generator.newline()
+    for (const t of throws) {
+      let text = `${getThrowsText(t.content)}`
+      if (throws.length > 1) {
+        text = `- ` + text
+      }
+      generator.pushline(text)
+    }
+    generator.newline()
+  }
+
+  const getRemarksText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          ret += p.text
+        } else if (p.kind === 'CodeSpan') {
+          ret += `\`${p.code}\``
+        }
+      }
+    }
+    return ret
+  }
+
+  if (docs.remarksBlock) {
+    generator.pushline(`### Remarks`)
+    generator.newline()
+    generator.pushline(getRemarksText(docs.remarksBlock.content))
+    generator.newline()
+  }
+
+  const getExampleTags = (customBlocks) => customBlocks.filter(x => x.blockTag.tagName === '@example')
+  const getExampleText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      console.log('nn', n.kind)
+      if (n.kind === 'Paragraph') {
+        for (const p of n.nodes) {
+          if (p.kind === 'PlainText') {
+            ret += p.text
+          } else if (p.kind === 'CodeSpan') {
+            ret += `\`${p.code}\``
+          }
+        }
+      } else if (n.kind === 'FencedCode') {
+        ret += `\n`
+        ret += `\`\`\`${n.language}\n`
+        ret += n.code
+        ret += `\`\`\``
+      }
+    }
+    return ret
+  }
+
+  const examples = getExampleTags(docs.customBlocks)
+  if (examples.length > 0) {
+    generator.pushline(`### Examples`)
+    generator.newline()
+    let count = 1
+    for (const e of examples) {
+      if (examples.length > 1) {
+        generator.pushline(`#### Example ${count}`)
+      }
+      generator.pushline(`${getExampleText(e.content)}`)
+      generator.newline()
+      count++
+    }
+    generator.newline()
+  }
+}
+
+function generateMarkdownEnum(generator, model) {
+  generator.pushline(`## ${model.name}`)
+  generator.newline()
+}
+
+function generateMarkdownInterface(generator, model) {
+  generator.pushline(`## ${model.name}`)
   generator.newline()
   
   for (const member of model.members) {
     switch (member.kind) {
       case 'MethodSignature':
-        generator.push(`### ${member.name}`)
-        generator.newline()
+        generator.pushline(`### ${member.name}`)
         generator.newline()
         break;
       default:
@@ -125,26 +282,33 @@ function generateMarkdownInterface(generator, model) {
 }
 
 function generateMarkdownClass(generator, model) {
-  generator.push(`## ${model.name}`)
-  generator.newline()
+  generator.pushline(`## ${model.name}`)
   generator.newline()
   
   for (const member of model.members) {
     switch (member.kind) {
       case 'Constructor':
-        generator.push(`### Constructor`)
-        generator.newline()
+        generator.pushline(`### Constructor`)
         generator.newline()
         break;
       case 'Method':
-        generator.push(`### ${member.name}`)
-        generator.newline()
+        generator.pushline(`### ${member.name}`)
         generator.newline()
         break;
       default:
         break;
     }
   }
+}
+
+function generateMarkdownTypeAlias(generator, model) {
+  generator.pushline(`## ${model.name}`)
+  generator.newline()
+}
+
+function generateMarkdownVariable(generator, model) {
+  generator.pushline(`## ${model.name}`)
+  generator.newline()
 }
 
 async function writeContents(generators) {
