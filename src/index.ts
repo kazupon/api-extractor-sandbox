@@ -4,6 +4,8 @@
  * @param a target 1
  * @param b target 2
  * 
+ * {@vueComponent add}
+ * 
  * @public
  */
 export function add(a: number, b: number): number {

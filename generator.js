@@ -1,8 +1,11 @@
 const fs = require('fs').promises
 const path = require('path')
-// TODO: use @microsoft/api-extractor-model
+const { ApiModel } = require('@microsoft/api-extractor-model')
+const apiModel1 = new ApiModel()
+const apiPackage = apiModel1.loadPackage('./temp/api-extractor-sandbox.api.json')
+//console.log('package', apiPackage)
 const apiModel = require('./temp/api-extractor-sandbox.api.json')
-console.log('apiModel', apiModel.members)
+//console.log('apiModel', apiModel.members)
 
 function createMarkdownGenerator(type) {
   const _context = {
@@ -49,7 +52,7 @@ function createMarkdownGenerator(type) {
 
 function generateMarkdown(generators, models) {
   for (const model of models) {
-    console.log(model)
+    console.log(model, model.excerptTokens)
 
     const kind = model.kind
     let generator = generators.get(kind)
@@ -66,6 +69,30 @@ function generateMarkdown(generators, models) {
         generator.push(`## ${model.name}`)
         generator.newline()
         generator.newline()
+        const docs = model.tsdocComment
+        console.log('docs', docs.params)
+        if (docs.summarySection) {
+          for (const n of docs.summarySection.nodes) {
+            for (const p of n.nodes) {
+              if (p.kind === 'PlainText') {
+                generator.push(p.text)
+                generator.newline()
+                generator.newline()
+              }
+            }
+          }
+        }
+
+        if (model.excerptTokens) {
+          generator.push(`**Signature:**`)
+          generator.newline()
+          generator.push('```typescript')
+          generator.newline()
+          generator.push(model.excerptTokens.map(token => token.text).join(''))
+          generator.newline()
+          generator.push('```')
+          generator.newline()
+        }
         break;
       case 'Interface':
         generateMarkdownInterface(generator, model)
@@ -143,4 +170,4 @@ function generate(model) {
   writeContents(generators)
 }
 
-generate(apiModel)
+generate(apiPackage)
