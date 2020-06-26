@@ -1,8 +1,39 @@
 
 /**
- * The version
+ * app version
  */
 export const VERSION = '1.0.0'
+
+/**
+ * Configrations
+ * 
+ * @default {}
+ */
+export const Config: { [name: string]: unknown } = {}
+
+/**
+ * Locale
+ */
+export type Locale = string
+
+/**
+ * Falback Locale
+ * 
+ * @remarks
+ * This is remarks of `Fallback Locale`
+ */
+export type FallbackLocale =
+  | Locale
+  | Locale[]
+  | { [locale in string]: Locale[] }
+  | false
+
+/**
+ * Locale Message resources
+ */
+export type LocaleMessage =
+  | string
+  | LocaleMessage[]
 
 /**
  * Error Code
@@ -16,6 +47,23 @@ export enum ErrorCodes {
    * Invalid format
    */
   InvalidFormat
+}
+
+/**
+ * Token Characters
+ * 
+ * @remarks
+ * This is remarks of Token Chararaceters
+ */
+export enum TokenChars {
+  /**
+   * Pipe charactor `|`
+   */
+  Pipe = '|',
+  /**
+   * Modulo charactor
+   */
+  Modulo = '%',
 }
 
 /**
@@ -47,11 +95,11 @@ export function add(a: number, b: number): number {
 }
 
 /**
- * Widget interface
+ * Calculatable interface
  * 
  * @public
  */
-export interface IWidget {
+export interface Calculatable {
   /**
    * add method 
    * @param a target 1
@@ -59,23 +107,49 @@ export interface IWidget {
    * @public
    */
   add(a: number, b: number): number
+  /**
+   * PI
+   */
+  PI: number
 }
 
 /**
- * Widget class
+ * Calculator class
+ * 
  * @public
  */
-export class Widget implements IWidget {
+export class Calculator implements Calculatable {
   constructor () {
   }
 
   /**
    * add method 
+   * 
    * @param a target 1
    * @param b target 2
+   * 
    * @public
    */
   add(a: number, b: number): number {
     return a + b
   }
+
+  /**
+   * sub method 
+   * 
+   * @param a target 1
+   * @param b target 2
+   * 
+   * @public
+   */
+  sub(a: number, b: number): number {
+    return a - b
+  }
+
+  /**
+   * PI
+   * 
+   * @returns 3.14
+   */
+  PI = 3.14
 }
