@@ -116,10 +116,34 @@ export interface Calculatable {
 /**
  * Calculator class
  * 
+ * @remarks
+ * This is remarks of Calculator class
+ * 
+ * @example
+ * ```javascript
+ * const c = new Calculator()
+ * const v1 = c.add(1, 1)
+ * const v2 = c.sub(1, 1)
+ * ```
+ * 
  * @public
  */
 export class Calculator implements Calculatable {
-  constructor () {
+
+  /**
+   * calcurator types
+   * 
+   * @default 'simple'
+   */
+  type: string
+
+  /**
+   * Conssutructor of usage
+   * 
+   * @param type calculator type
+   */
+  constructor (type: string) {
+    this.type = type
   }
 
   /**
