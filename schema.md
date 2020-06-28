@@ -1,5 +1,7 @@
 # Data Model Schema for ts-api-doc-generator
 
+Example: 
+
 ```json5
 {
   packages: [{
