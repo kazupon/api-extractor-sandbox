@@ -78,7 +78,7 @@ export enum TokenChars {
  * add function : `x`
  * 
  * @remarks
- * This is add function remarks: {@link I18nAdditionalOptions}. See {@link https://foo.bar.com/api/add | add}. {@link vue-i18n#add | foo} shared function.
+ * This is add function remarks: {@link ErrorCodes}. See {@link https://foo.bar.com/api/add | add}.
  * 
  * @param a target `1`
  * @param b target 2

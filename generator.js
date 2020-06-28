@@ -1,6 +1,7 @@
 const fs = require('fs').promises
 const path = require('path')
 const { ApiModel } = require('@microsoft/api-extractor-model')
+const { link } = require('fs')
 const apiModel = new ApiModel()
 const apiPackage = apiModel.loadPackage('./temp/api-extractor-sandbox.api.json')
 
@@ -205,11 +206,32 @@ function generateMarkdownFunction(generator, model) {
         } else if (p.kind === 'CodeSpan') {
           ret += `\`${p.code}\``
         } else if (p.kind === 'LinkTag') {
-          // console.log('nnn', p.linkText, p.urlDestination)
-          // if (p.codeDestination) {
-          //   const c = p.codeDestination
-          //   console.log('sss', c.packageName, c.importPath, c.memberReferences, c.emitAsTsdoc())
-          // }
+          const { linkText, urlDestination, codeDestination } = p
+          if (codeDestination) {
+            const result = resolveDeclarationReference(codeDestination, model)
+            if (result.resolvedApiItem) {
+              const filepath = getLinkPathFromModel(result.resolvedApiItem)
+              if (linkText) {
+                const encodedLinkText = getEscapedText(linkText.replace(/\s+/g, ' '))
+                ret += `[${encodedLinkText}](${filepath})`
+              } else {
+                ret += `[${result.resolvedApiItem.name}](${filepath})`
+              }
+            }
+          } else {
+            if (linkText) {
+              if (urlDestination) {
+                const encodedLinkText = getEscapedText(linkText.replace(/\s+/g, ' '))
+                ret += `[${encodedLinkText}](${urlDestination})`
+              } else {
+                ret += getEscapedText(linkText.replace(/\s+/g, ' '))
+              }
+            } else {
+              if (urlDestination) {
+                ret += urlDestination
+              }
+            }
+          }
         }
       }
     }
@@ -771,6 +793,60 @@ function generateMarkdownVariable(generator, model) {
     }
     generator.newline()
   }
+}
+
+function getEscapedText(text) {
+  return text
+    .replace(/\\/g, '\\\\') // first replace the escape character
+    .replace(/[*#[\]_|`~]/g, (x) => '\\' + x) // then escape any special characters
+    .replace(/---/g, '\\-\\-\\-') // hyphens only if it's 3 or more
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+function resolveDeclarationReference(reference, contextModel) {
+  return apiModel.resolveDeclarationReference(reference, contextModel)
+}
+
+const BadPathCharsRegExp = /[^a-z0-9_\-\.]/gi
+function getSafePathForName(name) {
+  return name.replace(BadPathCharsRegExp, '_').toLowerCase()
+}
+
+function getLinkPathFromModel(model) {
+  if (model.kind === 'Model') {
+    return './index'
+  }
+
+  let baseName = ''
+  for (const hierarchyItem of model.getHierarchy()) {
+    let qualifiedName = getSafePathForName(hierarchyItem.displayName)
+    // if (ApiParameterListMixin.isBaseClassOf(hierarchyItem)) {
+    //   if (hierarchyItem.overloadIndex > 1) {
+    //     // Subtract one for compatibility with earlier releases of API Documenter.
+    //     // (This will get revamped when we fix GitHub issue #1308)
+    //     qualifiedName += `_${hierarchyItem.overloadIndex - 1}`;
+    //   }
+    // }
+
+    switch (hierarchyItem.kind) {
+      case 'Model':
+      case 'EntryPoint':
+      case 'Package':
+        // baseName = getSafeFilenameForName(PackageName.getUnscopedName(hierarchyItem.displayName));
+        break
+      case 'Enum':
+      case 'Function':
+      case 'Variable':
+      case 'TypeAlias':
+        baseName += `${hierarchyItem.kind.toLowerCase()}#${qualifiedName}`
+        break
+      default:
+        baseName += '.' + qualifiedName
+    }
+  }
+  return './' + baseName
 }
 
 async function writeContents(generators) {
