@@ -204,6 +204,12 @@ function generateMarkdownFunction(generator, model) {
           ret += p.text
         } else if (p.kind === 'CodeSpan') {
           ret += `\`${p.code}\``
+        } else if (p.kind === 'LinkTag') {
+          // console.log('nnn', p.linkText, p.urlDestination)
+          // if (p.codeDestination) {
+          //   const c = p.codeDestination
+          //   console.log('sss', c.packageName, c.importPath, c.memberReferences, c.emitAsTsdoc())
+          // }
         }
       }
     }
@@ -682,6 +688,89 @@ function generateMarkdownTypeAlias(generator, model) {
 function generateMarkdownVariable(generator, model) {
   generator.pushline(`## ${model.name}`)
   generator.newline()
+
+  const docs = model.tsdocComment
+  if (docs.summarySection) {
+    for (const n of docs.summarySection.nodes) {
+      let text = ''
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          text += p.text
+        } else if (p.kind === 'CodeSpan') {
+          text += `\`${p.code}\``
+        }
+      }
+      generator.pushline(text)
+      generator.newline()
+    }
+  }
+
+  if (model.excerptTokens) {
+    generator.pushline(`**Signature:**`)
+    generator.pushline('```typescript')
+    generator.pushline(model.excerptTokens.map(token => token.text).join(''))
+    generator.pushline('```')
+    generator.newline()
+  }
+
+  const getRemarksText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      for (const p of n.nodes) {
+        if (p.kind === 'PlainText') {
+          ret += p.text
+        } else if (p.kind === 'CodeSpan') {
+          ret += `\`${p.code}\``
+        }
+      }
+    }
+    return ret
+  }
+
+  if (docs.remarksBlock) {
+    generator.pushline(`### Remarks`)
+    generator.newline()
+    generator.pushline(getRemarksText(docs.remarksBlock.content))
+    generator.newline()
+  }
+  
+  const getExampleTags = (customBlocks) => customBlocks.filter(x => x.blockTag.tagName === '@example')
+  const getExampleText = (content) => {
+    let ret = ''
+    for (const n of content.nodes) {
+      if (n.kind === 'Paragraph') {
+        for (const p of n.nodes) {
+          if (p.kind === 'PlainText') {
+            ret += p.text
+          } else if (p.kind === 'CodeSpan') {
+            ret += `\`${p.code}\``
+          }
+        }
+      } else if (n.kind === 'FencedCode') {
+        ret += `\n`
+        ret += `\`\`\`${n.language}\n`
+        ret += n.code
+        ret += `\`\`\``
+      }
+    }
+    return ret
+  }
+
+  const examples = getExampleTags(docs.customBlocks)
+  if (examples.length > 0) {
+    generator.pushline(`### Examples`)
+    generator.newline()
+    let count = 1
+    for (const e of examples) {
+      if (examples.length > 1) {
+        generator.pushline(`#### Example ${count}`)
+      }
+      generator.pushline(`${getExampleText(e.content)}`)
+      generator.newline()
+      count++
+    }
+    generator.newline()
+  }
 }
 
 async function writeContents(generators) {

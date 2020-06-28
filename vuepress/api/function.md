@@ -27,7 +27,7 @@ export declare function add(a: number, b: number): number;
 
 ### Remarks
 
-This is add function remarks
+This is add function remarks: . See .  shared function.
 
 ### Examples
 

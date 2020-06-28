@@ -65,6 +65,7 @@ module.exports = {
         {
           title: 'API References',
           collapsable: false, 
+          sidebarDepth: 2,
           children: [
             '',
             'function',

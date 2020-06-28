@@ -1,6 +1,14 @@
 
 /**
  * app version
+ * 
+ * @remarks
+ * you can lookup application version that is semver format.
+ * 
+ * @example
+ * ```javascript
+ * console.log(VERSION)
+ * ```
  */
 export const VERSION = '1.0.0'
 
@@ -70,7 +78,7 @@ export enum TokenChars {
  * add function : `x`
  * 
  * @remarks
- * This is add function remarks
+ * This is add function remarks: {@link I18nAdditionalOptions}. See {@link https://foo.bar.com/api/add | add}. {@link vue-i18n#add | foo} shared function.
  * 
  * @param a target `1`
  * @param b target 2
