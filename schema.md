@@ -103,10 +103,7 @@ Example:
             ],
             returns: [
               { ... }
-            ],
-            throws: undefined,
-            remarks: undefined,
-            examples: undefind
+            ]
           },
           { ... },
         ],
@@ -117,9 +114,7 @@ Example:
             sumarry: [
               { ... }
             ],
-            signature: "PI: number;",
-            remarks: undefined,
-            examples: undefind 
+            signature: "PI: number;"
           }
         ]
       }, {
