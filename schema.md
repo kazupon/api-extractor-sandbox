@@ -1,4 +1,4 @@
-## Date Model Spec
+# Data Model Schema for ts-api-doc-generator
 
 ```json5
 {
