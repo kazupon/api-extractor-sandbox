@@ -4,29 +4,25 @@
   "description": "",
   "typings": "./dist/api-extractor-sandbox.d",
   "scripts": {
-    "build": "tsc -p .",
-    "api:generate": "yarn build && api-extractor run --local --verbose",
-    "api:docs": "api-documenter markdown -i ./temp -o ./docs",
-    "api:gen": "api-documenter generate -i ./temp",
+    "build": "lerna run build",
+    "extract": "lerna run extract && ./scripts/move.sh",
+    "clean": "lerna run clean && rm -rf ./temp/*.md ./temp/*.json ./dist/*.d.ts ./docs",
+    "api:gen": "api-documenter markdown -i ./temp -o ./docs",
     "docs:gen": "node ./generator.js",
     "docs:dev": "vuepress dev vuepress",
-    "docs:build": "vuepress build vuepress",
-    "clean": "rm -rf ./etc/*.md ./temp ./lib ./dist ./docs/*.md ./generate/*.md"
+    "docs:build": "vuepress build vuepress"
   },
   "keywords": [],
   "author": "",
   "private": "true",
   "license": "MIT",
-  "dependencies": {
-    "doc-plugin-example": "file:./../doc-plugin-example"
-  },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.8.13",
-    "@microsoft/api-extractor": "^7.8.12",
     "@microsoft/api-extractor-model": "^7.8.8",
-    "vuepress": "^1.3.1",
+    "@microsoft/tsdoc": "^0.12.20",
     "@vuepress/plugin-back-to-top": "^1.3.1",
     "@vuepress/plugin-medium-zoom": "^1.3.1",
-    "typescript": "^3.9.5"
+    "lerna": "^3.22.1",
+    "vuepress": "^1.3.1"
   }
 }

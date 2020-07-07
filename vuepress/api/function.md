@@ -27,7 +27,7 @@ export declare function add(a: number, b: number): number;
 
 ### Remarks
 
-This is add function remarks: [ErrorCodes](./enum#errorcodes). See [add](https://foo.bar.com/api/add).  shared function.
+This is add function remarks: [ErrorCodes](./enum#errorcodes). See [add](https://foo.bar.com/api/add).
 
 ### Examples
 

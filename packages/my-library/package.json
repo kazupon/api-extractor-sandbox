@@ -1,0 +1,36 @@
+{
+  "name": "my-library",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "kazuya kawaguchi <kawakazu80@gmail.com>",
+  "homepage": "https://github.com/kazupon/api-extractor-sandbox#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kazupon/api-extractor-sandbox.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "build": "tsc",
+    "extract": "api-extractor run -l -c ./api-extractor.json",
+    "clean": "rm -rf ./dist ./temp ./lib ./etc/*.md"
+  },
+  "bugs": {
+    "url": "https://github.com/kazupon/api-extractor-sandbox/issues"
+  },
+  "dependencies": {
+    "shared": "^0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.6",
+    "@microsoft/api-extractor": "^7.9.1"
+  }
+}

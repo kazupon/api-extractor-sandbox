@@ -3,7 +3,7 @@ const path = require('path')
 const { ApiModel } = require('@microsoft/api-extractor-model')
 const { link } = require('fs')
 const apiModel = new ApiModel()
-const apiPackage = apiModel.loadPackage('./temp/api-extractor-sandbox.api.json')
+const apiPackage = apiModel.loadPackage('./temp/my-library.api.json')
 
 function createMarkdownGenerator(type) {
   const _context = {
